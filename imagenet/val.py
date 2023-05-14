@@ -16,7 +16,7 @@ import os
 from collections import OrderedDict
 
 from captum.attr import InputXGradient, IntegratedGradients
-
+from utils.dataset import ImageNetKaggle
 from models import AlexNet, XAlexNet, vgg16, xvgg16, fixup_resnet50, xfixup_resnet50
 
 parser = argparse.ArgumentParser()
@@ -43,16 +43,18 @@ device = "cuda:" + str(opts.gpu_id)
 torch.manual_seed(1)
 np.random.seed(1)
 
-valdir = os.path.join(opts.data_root, 'val')
+# valdir = os.path.join(opts.data_root, 'val')
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
-
-dataset = datasets.ImageFolder(valdir, transforms.Compose([
+val_transform = transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
             normalize,
-        ]))
+        ])
+dataset = ImageNetKaggle(opts.data_root, "val", val_transform)
+
+# dataset = datasets.ImageFolder(valdir, )
 
 val_loader = torch.utils.data.DataLoader(
         dataset,
@@ -157,7 +159,8 @@ if opts.compare_attribution:
    
 if opts.evaluate_contrast:
     
-    alphas = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+    alphas = [ 1, 0.25, 0.15, 0.125, 0.1, 0.075, 0.05, 0.025, 0.01, 0.001, 1e-4]
+    accs = []
     for alpha in alphas:
         correct_top1 = 0
         for i, (images, targets) in tqdm(enumerate(val_loader)):
@@ -168,4 +171,8 @@ if opts.evaluate_contrast:
             outputs = model(images)
             
             correct_top1 += get_nr_correct_classifications_topk(outputs, targets, topk=(1,)).item()
-        print('Accuracy top-1 for alpha ', alpha, correct_top1 / (len(val_loader) * opts.val_batch_size))
+
+        acc = correct_top1 / (len(val_loader) * opts.val_batch_size)
+        print('Accuracy top-1 for alpha ', alpha,acc )
+        accs.append(acc)
+    print("all the accuracies for contrast", accs)
