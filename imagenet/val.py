@@ -159,8 +159,8 @@ if opts.compare_attribution:
    
 if opts.evaluate_contrast:
     
-    # alphas = [ 1, 0.25, 0.15, 0.125, 0.1, 0.075, 0.05, 0.025, 0.01, 0.001, 1e-4]
-    alphas = [1e-4]
+    alphas = [ 1, 0.25, 0.15, 0.125, 0.1, 0.075, 0.05, 0.025, 0.01, 0.001, 1e-4]
+    # alphas = [1e-4]
 
     top1_accs = []
     for alpha in alphas:
