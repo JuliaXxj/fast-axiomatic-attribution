@@ -160,7 +160,7 @@ if opts.compare_attribution:
 if opts.evaluate_contrast:
     
     alphas = [ 1, 0.25, 0.15, 0.125, 0.1, 0.075, 0.05, 0.025, 0.01, 0.001, 1e-4]
-    accs = []
+    top1_accs = []
     for alpha in alphas:
         correct_top1 = 0
         for i, (images, targets) in tqdm(enumerate(val_loader)):
@@ -172,7 +172,7 @@ if opts.evaluate_contrast:
             
             correct_top1 += get_nr_correct_classifications_topk(outputs, targets, topk=(1,)).item()
 
-        acc = correct_top1 / (len(val_loader) * opts.val_batch_size)
-        print('Accuracy top-1 for alpha ', alpha,acc )
-        accs.append(acc)
-    print("all the accuracies for contrast", accs)
+        top1_acc = correct_top1 / (len(val_loader) * opts.val_batch_size)
+        print('Accuracy top-1 for alpha ', alpha,top1_acc )
+        top1_accs.append(top1_acc)
+    print("all the accuracies for contrast", top1_accs)
